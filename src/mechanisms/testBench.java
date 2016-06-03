@@ -99,7 +99,7 @@ public class testBench {
 	
 	
 
-	static String db_file = "jdbc:sqlite:/Users/soyo/Documents/DATASET/DB/Ylab16.sqlite";
+	static String db_file = "jdbc:sqlite:./db/ylab16.sqlite";
 
 	static int readNumOfForeignStd() throws SQLException, ClassNotFoundException {
 		int num = 0;
