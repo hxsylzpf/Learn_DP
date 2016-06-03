@@ -10,79 +10,78 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class testBench {
-	
+
 	public static void main(String[] args) throws Exception {
-		
-		
-		//TEST Laplace Mechanism
+
+		// TEST Laplace Mechanism
 		testLap();
-		
-		//TEST Exponential Mechanism
+
+		// TEST Exponential Mechanism
 		testExpMach();
-		
-		
+
 	}
-	
-	public static void testLap () throws Exception {
-		
+
+	public static void testLap() throws Exception {
+
 		double e = 1;
 		double sensitivity = 1;
-		
+
 		int stdAndStaffNum = readNumOfForeignStdAndStaff();
-		System.out.println(" answer question 8.(1) with ε="+e);
-		System.out.println(LaplaceMechanism.addLaplaceNoise(stdAndStaffNum,e,sensitivity));
-		
+		System.out.println(" answer question 8.(1) with ε=" + e);
+		System.out.println(LaplaceMechanism.addLaplaceNoise(stdAndStaffNum, e, sensitivity));
+
 		int stdNum = readNumOfForeignStd();
-		System.out.println("\n answer question 8.(2) with ε="+e);
-		System.out.println(LaplaceMechanism.addLaplaceNoise(stdNum,e,sensitivity));
-		
+		System.out.println("\n answer question 8.(2) with ε=" + e);
+		System.out.println(LaplaceMechanism.addLaplaceNoise(stdNum, e, sensitivity));
+
 	}
 
 	public static void testExpMach() throws ClassNotFoundException, SQLException {
-		
-		//read the scores (=age) of each possible output.
+
+		// read the scores (=age) of each possible output.
 		HashMap<String, Integer> name_age = readHashMap_Name_Age();
-		
+
 		double e = 1;
 		double sensitivity = 1;
-		
-		name_age =  (HashMap<String, Integer>) MapUtil.sortByValueDESC(name_age);	
-		
-		//answer question 8.(3)
-		System.out.println("\n answer question 8.(3) with ε="+e);
-		System.out.println(ExponentialMechanism.r(name_age, e,sensitivity));
-		
-		//print the scores
+
+		name_age = (HashMap<String, Integer>) MapUtil.sortByValueDESC(name_age);
+
+		// answer question 8.(3)
+		System.out.println("\n answer question 8.(3) with ε=" + e);
+		System.out.println(ExponentialMechanism.r(name_age, e, sensitivity));
+
+		// print the scores
 		System.out.println("\n scores in 8.(3):");
 		System.out.println(name_age);
-		
-		//print the Unnormalized output probabilities
-		HashMap<String,Double> hm_weight = ExponentialMechanism.getWeights_hm(name_age, e, sensitivity);
+
+		// print the Unnormalized output probabilities
+		HashMap<String, Double> hm_weight = ExponentialMechanism.getWeights_hm(name_age, e, sensitivity);
 		hm_weight = (HashMap<String, Double>) MapUtil.sortByValueDESC(hm_weight);
 		System.out.println("\n Unnormalized output probabilities in 8.(3)");
 		System.out.println(hm_weight);
-		
-		//print the Normalized output probabilities
-		HashMap<String,Double> hm_weight_prob = ExponentialMechanism.getNormalizedProb_helper_hm_double(hm_weight);
+
+		// print the Normalized output probabilities
+		HashMap<String, Double> hm_weight_prob = ExponentialMechanism.getNormalizedProb_helper_hm_double(hm_weight);
 		hm_weight_prob = (HashMap<String, Double>) MapUtil.sortByValueDESC(hm_weight_prob);
 		System.out.println("\n Normalized output probabilities in 8.(3)");
 		System.out.println(hm_weight_prob);
-		
-		
-		//TEST correct rate of exponential mechanism
-//		int correctTimes = 0;
-//		int testTime = 200000;
-//		for (int i = 0; i < testTime; i++) {
-//			if (ExponentialMechanism.r(name_age, e,sensitivity).equals("Masatoshi Yoshikawa")) {
-//				correctTimes++;
-//			}
-//		}
-		//output the correct rate.
-		//System.out.println((double)correctTimes/testTime);
-		
+
+		// TEST correct rate of exponential mechanism
+		// int correctTimes = 0;
+		// int testTime = 200000;
+		// for (int i = 0; i < testTime; i++) {
+		// if (ExponentialMechanism.r(name_age, e,sensitivity).equals("Masatoshi
+		// Yoshikawa")) {
+		// correctTimes++;
+		// }
+		// }
+		// output the correct rate.
+		// System.out.println((double)correctTimes/testTime);
+
 	}
 
-	// read the "scores" from ylab16.sqlite, here the score=age because we want to put the eldest person
+	// read the "scores" from ylab16.sqlite, here the score=age because we want
+	// to put the eldest person
 	static HashMap<String, Integer> readHashMap_Name_Age() throws SQLException, ClassNotFoundException {
 
 		HashMap<String, Integer> name_age = new HashMap<String, Integer>();
@@ -107,8 +106,6 @@ public class testBench {
 		return name_age;
 
 	}
-	
-	
 
 	static String db_file = "jdbc:sqlite:./db/ylab16.sqlite";
 
@@ -205,7 +202,7 @@ public class testBench {
 	}
 
 	/**
-	 * close PreparedStaement 
+	 * close PreparedStaement
 	 */
 	public static void closePreparedStatement(PreparedStatement pstmt) {
 		if (pstmt != null) {
