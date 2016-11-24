@@ -11,31 +11,27 @@ import java.util.HashMap;
 
 public class testBench {
 
-	// 34 person
-	public static double[] eArr = { 0.1, 0.3, 1, 0.2, 0.8, 0.1, 0.3, 1, 0.2, 0.8, 0.1, 0.3, 1, 0.2, 0.8, 0.1, 0.3, 1, 0.2, 0.8, 0.1, 0.3, 1, 0.2, 0.8,
-			0.1, 0.3, 1, 0.2, 0.8, 0.1, 0.3, 1, 0.2 };
-
 	public static void main(String[] args) throws Exception {
 
 		// TEST Laplace Mechanism
-		//testLap();
+		testLap();
 
 		// TEST Exponential Mechanism
-		 testExpMach();
+		testExpMach();
 
 	}
 
 	public static void testLap() throws Exception {
 
-		double e = 0.1;
+		double e = 1;
 		double sensitivity = 1;
 
 		int stdAndStaffNum = readNumOfForeignStdAndStaff();
-		System.out.println("stdAndStaffNum=" + stdAndStaffNum + " ε=" + e);
+		System.out.println(" answer question 8.(1) with ε=" + e);
 		System.out.println(LaplaceMechanism.addLaplaceNoise(stdAndStaffNum, e, sensitivity));
 
 		int stdNum = readNumOfForeignStd();
-		System.out.println("stdNum=" + stdNum + " ε=" + e);
+		System.out.println("\n answer question 8.(2) with ε=" + e);
 		System.out.println(LaplaceMechanism.addLaplaceNoise(stdNum, e, sensitivity));
 
 	}
@@ -45,7 +41,7 @@ public class testBench {
 		// read the scores (=age) of each possible output.
 		HashMap<String, Integer> name_age = readHashMap_Name_Age();
 
-		double e = 0.1;
+		double e = 1;
 		double sensitivity = 1;
 
 		name_age = (HashMap<String, Integer>) MapUtil.sortByValueDESC(name_age);
@@ -114,26 +110,6 @@ public class testBench {
 	static String db_file = "jdbc:sqlite:./db/ylab16.sqlite";
 
 	static int readNumOfForeignStd() throws SQLException, ClassNotFoundException {
-		int num = 0;
-
-		Class.forName("org.sqlite.JDBC");
-		Connection conn = DriverManager.getConnection(db_file);
-
-		Statement statement = conn.createStatement();
-
-		String sql_foreigner_std = "SELECT count(*) from ylab16 where \"FOREIGNER-OR-NOT\"=1 and POSITION=\"student\"";
-		ResultSet rs = statement.executeQuery(sql_foreigner_std);
-		num = rs.getInt(1);
-
-		closeResultSet(rs);
-		closeStatement(statement);
-		closeConnection(conn);
-
-		return num;
-
-	}
-	
-	static int readNumOfForeignStd(boolean[] use_or_notArr) throws SQLException, ClassNotFoundException {
 		int num = 0;
 
 		Class.forName("org.sqlite.JDBC");
