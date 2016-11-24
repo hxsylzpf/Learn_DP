@@ -6,7 +6,7 @@ import org.apache.commons.math3.distribution.LaplaceDistribution;
 
 public class LaplaceMechanism {
 	
-	 static double  addLaplaceNoise(double rawVal, double budget, double sensitivity) throws Exception {
+	 public static double  addLaplaceNoise(double rawVal, double budget, double sensitivity) throws Exception {
 		 
 		double scalePara = sensitivity / budget;
 
@@ -16,6 +16,7 @@ public class LaplaceMechanism {
 
 		return new LaplaceDistribution(0, scalePara).sample()+ rawVal;
 	}
+	 
 	
 	public static void main(String[] args) {
 		//test Apache

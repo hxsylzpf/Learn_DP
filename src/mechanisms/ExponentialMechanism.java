@@ -1,8 +1,13 @@
 package mechanisms;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
+
+import javax.swing.text.html.HTMLDocument.HTMLReader.PreAction;
+
+import poc.utility.CommonUtility;
 
 public class ExponentialMechanism {
 
@@ -14,19 +19,31 @@ public class ExponentialMechanism {
 
 	public static int r(double[] score, double budget, double sensitivity) {
 
-		double[] data = new double[score.length];
+		
+
+		double[] weight = new double[score.length];
 		for (int i = 0; i < score.length; i++) {
-			data[i] = Math.exp(budget * score[i] / sensitivity);
+
+			weight[i] = Math.exp(budget * score[i] / sensitivity);
+
+			
 		}
 
-		return getRandomIdxByProbArr(data);
+		return getRandomIdxByProbArr(weight);
 	}
+	
+	
 
 	public static int r(float[] score, double budget, double sensitivity) {
 
 		double[] weight = new double[score.length];
 		for (int i = 0; i < score.length; i++) {
 			weight[i] = Math.exp(budget * score[i] / sensitivity);
+
+			// test
+			if (weight[i] == 0) {
+				System.out.println("??");
+			}
 		}
 
 		return getRandomIdxByProbArr(weight);
@@ -132,38 +149,47 @@ public class ExponentialMechanism {
 	}
 
 	public static int getRandomIdxByProb_helper(double[] probProportion) {
-		int ranIdx = Integer.MIN_VALUE;
+		int ranIdx = -10000;
 
 		Random r = new Random();
 		double d = r.nextDouble();
 		// System.out.println("random d="+d);
 		for (int i = 0; i < probProportion.length; i++) {
 
-			if (d < probProportion[i]) {
+			if (d <= probProportion[i]) {
 				ranIdx = i;
 				// test
 				// System.out.println("ranIdx="+i);
 				break;
 			}
 		}
+		
+		if (ranIdx==-10000) {
+			System.err.println("!!");
+		}
 
 		return ranIdx;
 	}
 
-	public static double[] getNormalizedProb_helper(double[] probabilityList) {
+	public static double[] getNormalizedProb_helper(double[] weights) {
 
 		double sum = 0.0;
-		for (int i = 0; i < probabilityList.length; i++) {
-			sum = sum + probabilityList[i];
+		for (int i = 0; i < weights.length; i++) {
+			sum = sum + weights[i];
 		}
 
-		double[] normalizedProb = new double[probabilityList.length];
+		double[] normalizedProb = new double[weights.length];
 		for (int i = 0; i < normalizedProb.length; i++) {
-			normalizedProb[i] = probabilityList[i] / sum;
+			normalizedProb[i] = weights[i] / sum;
+
 		}
 
 		// TEST
 		// System.out.println(Arrays.toString(normalizedProb));
+		
+//		if (normalizedProb[normalizedProb.length-1]==0.0) {
+//			System.err.println("!!!3");
+//		}
 
 		return normalizedProb;
 
@@ -201,7 +227,7 @@ public class ExponentialMechanism {
 		return hm_score_prob;
 
 	}
-	
+
 	public static HashMap<String, Double> getNormalizedProb_helper_hm_double(HashMap<String, Double> hm_score) {
 
 		int n = hm_score.size();
@@ -246,15 +272,14 @@ public class ExponentialMechanism {
 				proportionalProb[i] = proportionalProb[i - 1] + normalizedProb[i];
 			}
 
-			// test
-			if (normalizedProb[i] == 0) {
-				System.out.println("??");
-			}
-
 		}
 
 		// TEST
 		// System.out.println(Arrays.toString(proportionalProb));
+		
+//		if (proportionalProb[proportionalProb.length-1]==0.0) {
+//			System.err.println("!!!2");
+//		}
 
 		return proportionalProb;
 
