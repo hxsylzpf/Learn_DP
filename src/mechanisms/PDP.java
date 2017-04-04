@@ -1,7 +1,6 @@
 package mechanisms;
 
-import Ylab.Correlation.Utility.UtilCommon;
-import poc.utility.CommonUtility;
+import util.CommonUtility;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ public class PDP {
 		double t_inv = 0.01;
 		for (int i = 1; i <= testThrNum; i++) {
 			double t = 0.01 + t_inv * i;
-			labelOfEleInList[i - 1] = String.valueOf(UtilCommon.keepNdecimalDouble(t, 2));
+			labelOfEleInList[i - 1] = String.valueOf(CommonUtility.keepNdecimalDouble(t, 2));
 			doubleArrList.add(testThrehold(data, eArrASE, testTimes, t));
 
 		}
