@@ -45,6 +45,31 @@ public class PDP {
 		return ExponentialMechanism.run(scoreBinaryCount_v2(binaryData, eArrASE), budget, sensitivity);
 
 	}
+	
+	//TODO: need to implement the following functions. 
+	// essentially, need to implement scoreHist/scoreMin/scoreMedian similar as scoreBinaryCount_v2
+
+	// TODO 
+	// hint: if DB is {A,A,A,B,C}, count("A") on DB is equal to count("A") on DB':{A,A,A,notA,notA}
+	// public static int PE_Hist(int[] categoricalData, double[] epsArr) {
+	//
+	//	return ExponentialMechanism.run(scoreHist(categoricalData, epsArr), 1, 1);
+	//
+	// }
+
+	// TODO see p.7 in PDP paper
+	// public static int PE_Min(int[] numericalData, double[] epsArr) {
+	//
+	//	return ExponentialMechanism.run(scoreMin(numericalData, epsArr), 1, 1);
+	//
+	// }
+
+	// TODO see p.7 in PDP paper
+	// public static int PE_Median(int[] numericalData, double[] epsArr) {
+	//
+	//	return ExponentialMechanism.run(scoreMedian(numericalData, epsArr), 1, 1);
+	//
+	// }
 
 	// binary data, count "1"
 	// output the score corresponding to each count r in [0,sizeOfData]
