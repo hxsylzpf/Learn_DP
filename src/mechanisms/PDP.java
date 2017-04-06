@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /*
  * This file implements two PDP mechanisms: 
  * Sample mechanism and Exponential-Like mechanism (PE, Personalized Exponential).
- * Also, for personal interests, some codes for understanding the utility performance of different methods
+ * Also, for personal interest, some codes for understanding the utility performance of different methods
  */
 public class PDP {
 	
