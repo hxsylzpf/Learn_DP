@@ -144,8 +144,8 @@ public class PDP {
 
 	}
 
-	// TEST count_score_binary2
-	public static void test_count_score_binary2() {
+	// TEST scoreBinaryCount_v2
+	public static void test_scoreBinaryCount_v2() {
 		int datasize = 1000;
 
 		// == get data
