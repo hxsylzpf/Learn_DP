@@ -7,9 +7,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-
+/*
+ * This file implements two PDP mechanisms: 
+ * Sample mechanism and Exponential-Like mechanism (PE, Personalized Exponential).
+ * Also, for personal interests, some codes for understanding the utility performance of different methods
+ */
 public class PDP {
-
+	
 	public static void main(String[] args) throws Exception {
 
 		// testPDPHist();
@@ -22,7 +26,14 @@ public class PDP {
 
 		// testVaryDatasize();
 
-		testVaryThreshold();
+		// testVaryThreshold();
+
+	}
+
+	// An Exponential-like mechanism for (1) binary data (2) count query (counting "1"s)
+	public static int PE(int[] binaryData, double[] eArrASE, double sensitivity, double budget) {
+
+		return ExponentialMechanism.run(countOne_score_binary2(binaryData, eArrASE), budget, sensitivity);
 
 	}
 
@@ -36,7 +47,7 @@ public class PDP {
 		double p = 0.2;
 		int[] data = getBinaryData(datasize, p);
 		int realCount = calRawCountBinary(data);
-		System.err.println("realCount="+realCount);
+		System.err.println("realCount=" + realCount);
 
 		// get privacy setting
 		double e_cons = 0.001;
@@ -61,9 +72,11 @@ public class PDP {
 
 		String[] labelOfInsidElement = { "PE", "Sample-Lap", "Sample-PE", "Lap" };
 
-		//String oString = CommonUtility.convertArrListToTable("varying threshold", doubleArrList, "row", labelOfEleInList, labelOfInsidElement);
+		// String oString = CommonUtility.convertArrListToTable("varying
+		// threshold", doubleArrList, "row", labelOfEleInList,
+		// labelOfInsidElement);
 
-		//System.out.println(oString);
+		// System.out.println(oString);
 
 	}
 
@@ -82,7 +95,7 @@ public class PDP {
 		// System.out.println(CommonUtility.getStat(eArrASE));
 		// System.out.println(Arrays.toString(eArrASE));
 
-		int testTimes = 1000;
+		int testTimes = 10;
 
 		double Sample_threshold = 0;
 		double[] cand_sample_t = { 0.1, 0.09, 0.08, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01 };
@@ -105,14 +118,16 @@ public class PDP {
 
 		String[] labelOfInsidElement = { "PE", "Sample-Lap", "Sample-PE", "Lap" };
 
-		String oString = CommonUtility.convertArrListToTable("varying datasize", doubleArrList, "row", labelOfEleInList, labelOfInsidElement);
+		String oString = CommonUtility.convertArrListToTable("varying datasize", doubleArrList, "row", labelOfEleInList,
+				labelOfInsidElement);
 
 		System.out.println(oString);
 	}
 
 	// p: data density, how many "1"
 
-	public static double[] testThrehold(int[] data, double[] eArrASE, int testTimes, double Sample_threshold) throws Exception {
+	public static double[] testThrehold(int[] data, double[] eArrASE, int testTimes, double Sample_threshold)
+			throws Exception {
 
 		boolean log = false;
 		double sensitivity = 1;
@@ -138,7 +153,7 @@ public class PDP {
 		double[] re_lap = new double[testTimes];
 
 		for (int i = 0; i < testTimes; i++) {
-			re_PE[i] = PE(data, eArrASE, sensitivity);
+			re_PE[i] = PE(data, eArrASE, sensitivity, 1);
 			re_Sample_lap[i] = Sample_count_lap(Sample_threshold, data, eArrASE, sensitivity);
 			re_Sample_PE[i] = Sample_count_PE(Sample_threshold, data, eArrASE, sensitivity);
 			re_lap[i] = LaplaceMechanism.addLaplaceNoise(realCount, CommonUtility.minElemInArr(eArrASE), sensitivity);
@@ -162,8 +177,8 @@ public class PDP {
 		return realCount;
 	}
 
-	public static double[] testEachPara(int size, double p, double e_min, double e_moderate, double e_libral, double frac_c, double frac_m,
-			int testTimes, double Sample_threshold, double sensitivity) throws Exception {
+	public static double[] testEachPara(int size, double p, double e_min, double e_moderate, double e_libral,
+			double frac_c, double frac_m, int testTimes, double Sample_threshold, double sensitivity) throws Exception {
 
 		boolean log = false;
 
@@ -189,7 +204,7 @@ public class PDP {
 		// ★★★ result of PE NOTE: budget & sensitivity are 1.
 		double[] re_PE = new double[testTimes];
 		for (int i = 0; i < testTimes; i++) {
-			int returnedCount = PE(data, eArrASE, sensitivity);
+			int returnedCount = PE(data, eArrASE, sensitivity,1 );
 			re_PE[i] = returnedCount;
 		}
 
@@ -286,7 +301,7 @@ public class PDP {
 		// ★★★ result of PE NOTE: budget & sensitivity are 1.
 		double[] re_PDP = new double[testTimes];
 		for (int i = 0; i < testTimes; i++) {
-			int returnedCount = PE(data, eArrASE, sensitivity);
+			int returnedCount = PE(data, eArrASE, sensitivity, 1);
 			re_PDP[i] = returnedCount;
 		}
 
@@ -373,13 +388,14 @@ public class PDP {
 		// test PE
 		StringBuffer o = new StringBuffer();
 		for (int i = 0; i < 1000; i++) {
-			int returnedID = PE(data, eArrASE, sensitivity);
+			int returnedID = PE(data, eArrASE, sensitivity, 1);
 			o.append(returnedID).append(",");
 		}
 		CommonUtility.writeTxtToDisk(o.toString(), "/Users/soyo/Downloads/1.txt");
 	}
 
-	// p is fraction of 1
+	//Generate synthetic binary data "0"s and "1"s
+	// p is fraction of "1"
 	public static int[] getBinaryData(int size, double p) {
 		int[] data = new int[size];
 
@@ -460,7 +476,8 @@ public class PDP {
 	// }
 
 	// new version, more control
-	public static double[] geteArr_ASE(int size, double e_min, double e_moderate, double e_libral, double frac_c, double frac_m) {
+	public static double[] geteArr_ASE(int size, double e_min, double e_moderate, double e_libral, double frac_c,
+			double frac_m) {
 		double[] eArr = new double[size];
 
 		for (int i = 0; i < size; i++) {
@@ -481,7 +498,8 @@ public class PDP {
 
 	}
 
-	public static double Sample_count_PE(double threshold, int[] rawData, double[] eArr, double sensitivity) throws Exception {
+	public static double Sample_count_PE(double threshold, int[] rawData, double[] eArr, double sensitivity)
+			throws Exception {
 
 		double[][] newDataAndeArr = Sample_data(threshold, rawData, eArr);
 		double[] newData = newDataAndeArr[0];
@@ -492,11 +510,12 @@ public class PDP {
 			realCount = realCount + (int) newData[i];
 		}
 
-		return PE(CommonUtility.doubleArr2intArr(newData), neweArr, sensitivity);
+		return PE(CommonUtility.doubleArr2intArr(newData), neweArr, sensitivity, 1);
 
 	}
 
-	public static double Sample_count_lap(double threshold, int[] rawData, double[] eArr, double sensitivity) throws Exception {
+	public static double Sample_count_lap(double threshold, int[] rawData, double[] eArr, double sensitivity)
+			throws Exception {
 		double[][] newDataAndeArr = Sample_data(threshold, rawData, eArr);
 		double[] newData = newDataAndeArr[0];
 
@@ -555,13 +574,6 @@ public class PDP {
 		return newDataAndeArr;
 	}
 
-	// Exponential-like mechanism
-	public static int PE(int[] data, double[] eArrASE, double sensitivity) {
-
-		return ExponentialMechanism.r(count_score_binary2(data, eArrASE), 1, sensitivity);
-
-	}
-
 	// binary data, count "1"
 	// output the score corresponding to each count r in [0,sizeOfData]
 	public static double[] count_score_binary(int[] data, double[] eArrASE) {
@@ -612,7 +624,7 @@ public class PDP {
 	// version 2 improve computational efficiency
 	// binary data, count "1"
 	// output the score corresponding to each count r in [0,sizeOfData]
-	public static double[] count_score_binary2(int[] data, double[] eArrASE) {
+	public static double[] countOne_score_binary2(int[] data, double[] eArrASE) {
 
 		int maxR_count = data.length;
 		double[] scoreArr = new double[maxR_count + 1];
@@ -679,7 +691,7 @@ public class PDP {
 		double[] eArrASE = geteArr_ASE(datasize, e_cons, e_moderate, e_libral, frac_c, frac_m);
 
 		double[] scoreArr1 = count_score_binary(data, eArrASE);
-		double[] scoreArr2 = count_score_binary2(data, eArrASE);
+		double[] scoreArr2 = countOne_score_binary2(data, eArrASE);
 
 		System.out.println(Arrays.toString(scoreArr1));
 		System.out.println(Arrays.toString(scoreArr2));
@@ -767,7 +779,7 @@ public class PDP {
 		double r2 = 0;
 
 		if (data1.length != 0) {
-			r1 = ExponentialMechanism.r(count_score_binary(data1, eArrASE1), 1, 1);
+			r1 = ExponentialMechanism.run(count_score_binary(data1, eArrASE1), 1, 1);
 
 		}
 

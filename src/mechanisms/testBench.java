@@ -18,6 +18,24 @@ public class testBench {
 
 		// TEST Exponential Mechanism
 		testExpMach();
+		
+		//TEST Exponential-Like mechanism (PDP)
+		testPDP_PE();
+
+	}
+	
+	public static void testPDP_PE() throws Exception {
+
+		double e = 1;
+		double sensitivity = 1;
+
+		int stdAndStaffNum = readNumOfForeignStdAndStaff();
+		System.out.println(" answer question 8.(1) with ε=" + e);
+		System.out.println(LaplaceMechanism.addLaplaceNoise(stdAndStaffNum, e, sensitivity));
+
+		int stdNum = readNumOfForeignStd();
+		System.out.println("\n answer question 8.(2) with ε=" + e);
+		System.out.println(LaplaceMechanism.addLaplaceNoise(stdNum, e, sensitivity));
 
 	}
 

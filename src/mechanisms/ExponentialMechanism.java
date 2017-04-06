@@ -12,7 +12,7 @@ public class ExponentialMechanism {
 
 	}
 
-	public static int r(double[] score, double budget, double sensitivity) {
+	public static int run(double[] score, double budget, double sensitivity) {
 
 		double[] data = new double[score.length];
 		for (int i = 0; i < score.length; i++) {
