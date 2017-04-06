@@ -7,13 +7,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+
 /*
  * This file implements two PDP mechanisms: 
  * Sample mechanism and Exponential-Like mechanism (PE, Personalized Exponential).
  * Also, for personal interest, some codes for understanding the utility performance of different methods
  */
 public class PDP {
-	
+
 	public static void main(String[] args) throws Exception {
 
 		// testPDPHist();
@@ -30,11 +31,142 @@ public class PDP {
 
 	}
 
-	// An Exponential-like mechanism for (1) binary data (2) count query (counting "1"s)
-	public static int PE(int[] binaryData, double[] eArrASE, double sensitivity, double budget) {
+	// An Exponential-like mechanism for (1) binary data (2) count query
+	// (counting "1"s)
+	public static int PE_BinaryCount(int[] binaryData, double[] eArrASE) {
 
-		return ExponentialMechanism.run(countOne_score_binary2(binaryData, eArrASE), budget, sensitivity);
+		// "budget" (in the context of DP) is always 1
+		double budget = 1;
 
+		// "sensitivity" here is also in the context of DP; for PDP, the
+		// "sensitivity" is encoded in "score"
+		double sensitivity = 1;
+
+		return ExponentialMechanism.run(scoreBinaryCount_v2(binaryData, eArrASE), budget, sensitivity);
+
+	}
+
+	// binary data, count "1"
+	// output the score corresponding to each count r in [0,sizeOfData]
+	public static double[] scoreBinaryCount_v1(int[] data, double[] eArrASE) {
+
+		int maxR_count = data.length;
+
+		double[] scoreArr = new double[maxR_count + 1];
+
+		int realCount = 0;
+
+		// ★ for binary 0/1, count 1
+		for (int i = 0; i < eArrASE.length; i++) {
+			realCount = realCount + data[i];
+		}
+
+		for (int r = 0; r <= maxR_count; r++) {
+
+			if (realCount > r) {
+				int numOfChange = realCount - r;
+				for (int j = 0; j < data.length && numOfChange > 0; j++) {
+					// ★ for binary 0/1, count 1
+					if (data[j] == 1) {
+						scoreArr[r] = scoreArr[r] - eArrASE[j];
+						numOfChange = numOfChange - 1;
+					}
+
+				}
+			} else if (r == realCount) {
+				scoreArr[r] = 0;
+			} else if (realCount < r) {
+
+				int numOfChange = r - realCount;
+				for (int j = 0; j < data.length && numOfChange > 0; j++) {
+					// ★ for binary 0/1, count 1
+					if (data[j] == 0) {
+						scoreArr[r] = scoreArr[r] - eArrASE[j];
+						numOfChange = numOfChange - 1;
+					}
+
+				}
+			}
+		}
+
+		return scoreArr;
+
+	}
+
+	// version 2 improve computational efficiency
+	// binary data, count "1"
+	// output the score corresponding to each count r in [0,sizeOfData]
+	public static double[] scoreBinaryCount_v2(int[] data, double[] eArrASE) {
+
+		int maxR_count = data.length;
+		double[] scoreArr = new double[maxR_count + 1];
+
+		int realCount = 0;
+
+		// ★ for binary 0/1, count 1
+		for (int i = 0; i < eArrASE.length; i++) {
+			realCount = realCount + data[i];
+		}
+
+		// // need to change 0->1
+		// ArrayList<Double> scoreArr_0_1 = new ArrayList<Double>();
+		//
+		// // need to change 1->0
+		// ArrayList<Double> scoreArr_1_0 = new ArrayList<Double>();
+
+		double acc_0_1 = 0.0;
+		double acc_1_0 = 0.0;
+
+		int count_0_1 = 0;
+		int count_1_0 = 0;
+
+		for (int i = 0; i < data.length; i++) {
+			if (data[i] == 1) {
+
+				acc_1_0 = acc_1_0 - eArrASE[i];
+				// scoreArr_1_0.add(acc_1_0);
+
+				scoreArr[realCount - 1 - count_1_0] = acc_1_0;
+
+				count_1_0 = count_1_0 + 1;
+
+			} else {
+
+				acc_0_1 = acc_0_1 - eArrASE[i];
+				// scoreArr_0_1.add(acc_0_1);
+				scoreArr[realCount + 1 + count_0_1] = acc_0_1;
+
+				count_0_1 = count_0_1 + 1;
+			}
+		}
+
+		return scoreArr;
+
+	}
+
+	// TEST count_score_binary2
+	public static void test_count_score_binary2() {
+		int datasize = 1000;
+
+		// == get data
+		double p = 0.15;
+		int[] data = getBinaryData(datasize, p);
+
+		// == get eArr
+		double e_cons = 0.01;
+		double e_moderate = 0.5;
+		double e_libral = 1.0;
+
+		double frac_c = 0.54;
+		double frac_m = 0.37;
+
+		double[] eArrASE = geteArr_ASE(datasize, e_cons, e_moderate, e_libral, frac_c, frac_m);
+
+		double[] scoreArr1 = scoreBinaryCount_v1(data, eArrASE);
+		double[] scoreArr2 = scoreBinaryCount_v2(data, eArrASE);
+
+		System.out.println(Arrays.toString(scoreArr1));
+		System.out.println(Arrays.toString(scoreArr2));
 	}
 
 	// the same data set, the same privacy setting
@@ -153,7 +285,7 @@ public class PDP {
 		double[] re_lap = new double[testTimes];
 
 		for (int i = 0; i < testTimes; i++) {
-			re_PE[i] = PE(data, eArrASE, sensitivity, 1);
+			re_PE[i] = PE_BinaryCount(data, eArrASE);
 			re_Sample_lap[i] = Sample_count_lap(Sample_threshold, data, eArrASE, sensitivity);
 			re_Sample_PE[i] = Sample_count_PE(Sample_threshold, data, eArrASE, sensitivity);
 			re_lap[i] = LaplaceMechanism.addLaplaceNoise(realCount, CommonUtility.minElemInArr(eArrASE), sensitivity);
@@ -204,7 +336,7 @@ public class PDP {
 		// ★★★ result of PE NOTE: budget & sensitivity are 1.
 		double[] re_PE = new double[testTimes];
 		for (int i = 0; i < testTimes; i++) {
-			int returnedCount = PE(data, eArrASE, sensitivity,1 );
+			int returnedCount = PE_BinaryCount(data, eArrASE);
 			re_PE[i] = returnedCount;
 		}
 
@@ -301,7 +433,7 @@ public class PDP {
 		// ★★★ result of PE NOTE: budget & sensitivity are 1.
 		double[] re_PDP = new double[testTimes];
 		for (int i = 0; i < testTimes; i++) {
-			int returnedCount = PE(data, eArrASE, sensitivity, 1);
+			int returnedCount = PE_BinaryCount(data, eArrASE);
 			re_PDP[i] = returnedCount;
 		}
 
@@ -388,13 +520,13 @@ public class PDP {
 		// test PE
 		StringBuffer o = new StringBuffer();
 		for (int i = 0; i < 1000; i++) {
-			int returnedID = PE(data, eArrASE, sensitivity, 1);
+			int returnedID = PE_BinaryCount(data, eArrASE);
 			o.append(returnedID).append(",");
 		}
 		CommonUtility.writeTxtToDisk(o.toString(), "/Users/soyo/Downloads/1.txt");
 	}
 
-	//Generate synthetic binary data "0"s and "1"s
+	// Generate synthetic binary data "0"s and "1"s
 	// p is fraction of "1"
 	public static int[] getBinaryData(int size, double p) {
 		int[] data = new int[size];
@@ -510,7 +642,7 @@ public class PDP {
 			realCount = realCount + (int) newData[i];
 		}
 
-		return PE(CommonUtility.doubleArr2intArr(newData), neweArr, sensitivity, 1);
+		return PE_BinaryCount(CommonUtility.doubleArr2intArr(newData), neweArr);
 
 	}
 
@@ -572,129 +704,6 @@ public class PDP {
 		}
 
 		return newDataAndeArr;
-	}
-
-	// binary data, count "1"
-	// output the score corresponding to each count r in [0,sizeOfData]
-	public static double[] count_score_binary(int[] data, double[] eArrASE) {
-
-		int maxR_count = data.length;
-
-		double[] scoreArr = new double[maxR_count + 1];
-
-		int realCount = 0;
-
-		// ★ for binary 0/1, count 1
-		for (int i = 0; i < eArrASE.length; i++) {
-			realCount = realCount + data[i];
-		}
-
-		for (int r = 0; r <= maxR_count; r++) {
-
-			if (realCount > r) {
-				int numOfChange = realCount - r;
-				for (int j = 0; j < data.length && numOfChange > 0; j++) {
-					// ★ for binary 0/1, count 1
-					if (data[j] == 1) {
-						scoreArr[r] = scoreArr[r] - eArrASE[j];
-						numOfChange = numOfChange - 1;
-					}
-
-				}
-			} else if (r == realCount) {
-				scoreArr[r] = 0;
-			} else if (realCount < r) {
-
-				int numOfChange = r - realCount;
-				for (int j = 0; j < data.length && numOfChange > 0; j++) {
-					// ★ for binary 0/1, count 1
-					if (data[j] == 0) {
-						scoreArr[r] = scoreArr[r] - eArrASE[j];
-						numOfChange = numOfChange - 1;
-					}
-
-				}
-			}
-		}
-
-		return scoreArr;
-
-	}
-
-	// version 2 improve computational efficiency
-	// binary data, count "1"
-	// output the score corresponding to each count r in [0,sizeOfData]
-	public static double[] countOne_score_binary2(int[] data, double[] eArrASE) {
-
-		int maxR_count = data.length;
-		double[] scoreArr = new double[maxR_count + 1];
-
-		int realCount = 0;
-
-		// ★ for binary 0/1, count 1
-		for (int i = 0; i < eArrASE.length; i++) {
-			realCount = realCount + data[i];
-		}
-
-		// // need to change 0->1
-		// ArrayList<Double> scoreArr_0_1 = new ArrayList<Double>();
-		//
-		// // need to change 1->0
-		// ArrayList<Double> scoreArr_1_0 = new ArrayList<Double>();
-
-		double acc_0_1 = 0.0;
-		double acc_1_0 = 0.0;
-
-		int count_0_1 = 0;
-		int count_1_0 = 0;
-
-		for (int i = 0; i < data.length; i++) {
-			if (data[i] == 1) {
-
-				acc_1_0 = acc_1_0 - eArrASE[i];
-				// scoreArr_1_0.add(acc_1_0);
-
-				scoreArr[realCount - 1 - count_1_0] = acc_1_0;
-
-				count_1_0 = count_1_0 + 1;
-
-			} else {
-
-				acc_0_1 = acc_0_1 - eArrASE[i];
-				// scoreArr_0_1.add(acc_0_1);
-				scoreArr[realCount + 1 + count_0_1] = acc_0_1;
-
-				count_0_1 = count_0_1 + 1;
-			}
-		}
-
-		return scoreArr;
-
-	}
-
-	// TEST count_score_binary2
-	public static void test_count_score_binary2() {
-		int datasize = 1000;
-
-		// == get data
-		double p = 0.15;
-		int[] data = getBinaryData(datasize, p);
-
-		// == get eArr
-		double e_cons = 0.01;
-		double e_moderate = 0.5;
-		double e_libral = 1.0;
-
-		double frac_c = 0.54;
-		double frac_m = 0.37;
-
-		double[] eArrASE = geteArr_ASE(datasize, e_cons, e_moderate, e_libral, frac_c, frac_m);
-
-		double[] scoreArr1 = count_score_binary(data, eArrASE);
-		double[] scoreArr2 = countOne_score_binary2(data, eArrASE);
-
-		System.out.println(Arrays.toString(scoreArr1));
-		System.out.println(Arrays.toString(scoreArr2));
 	}
 
 	// hybrid
@@ -779,7 +788,7 @@ public class PDP {
 		double r2 = 0;
 
 		if (data1.length != 0) {
-			r1 = ExponentialMechanism.run(count_score_binary(data1, eArrASE1), 1, 1);
+			r1 = ExponentialMechanism.run(scoreBinaryCount_v1(data1, eArrASE1), 1, 1);
 
 		}
 
