@@ -17,7 +17,7 @@ public class PDP {
 
 	public static void main(String[] args) throws Exception {
 
-		// testPDPHist();
+		testPDPHist();
 
 		// testPDP_RMSE();
 
@@ -548,7 +548,7 @@ public class PDP {
 			int returnedID = PE_BinaryCount(data, eArrASE);
 			o.append(returnedID).append(",");
 		}
-		CommonUtility.writeTxtToDisk(o.toString(), "/Users/soyo/Downloads/1.txt");
+		CommonUtility.writeTxtToDisk(o.toString(), "/Users/yangcao/Downloads/1.txt");
 	}
 
 	// Generate synthetic binary data "0"s and "1"s

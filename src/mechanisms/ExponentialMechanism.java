@@ -16,17 +16,27 @@ public class ExponentialMechanism {
 
 		double[] data = new double[score.length];
 		for (int i = 0; i < score.length; i++) {
-			data[i] = Math.exp(budget * score[i] / sensitivity);
+			data[i] = Math.exp(budget * score[i] *0.5 / sensitivity);
 		}
 
 		return getRandomIdxByProbArr(data);
+	}
+	
+	public static double[] releaseDistr(double[] score, double budget, double sensitivity) {
+
+		double[] data = new double[score.length];
+		for (int i = 0; i < score.length; i++) {
+			data[i] = Math.exp(budget * score[i] *0.5  / sensitivity);
+		}
+
+		return getNormalizedProb_helper(data);
 	}
 
 	public static int r(float[] score, double budget, double sensitivity) {
 
 		double[] weight = new double[score.length];
 		for (int i = 0; i < score.length; i++) {
-			weight[i] = Math.exp(budget * score[i] / sensitivity);
+			weight[i] = Math.exp(budget * score[i] *0.5 / sensitivity);
 		}
 
 		return getRandomIdxByProbArr(weight);
@@ -36,7 +46,7 @@ public class ExponentialMechanism {
 
 		double[] data = new double[score.length];
 		for (int i = 0; i < score.length; i++) {
-			data[i] = Math.exp(budget * score[i] / sensitivity);
+			data[i] = Math.exp(budget * score[i] *0.5 / sensitivity);
 		}
 
 		return getRandomIdxByProbArr(data);
@@ -58,7 +68,7 @@ public class ExponentialMechanism {
 
 		double[] data = new double[scores.length];
 		for (int i = 0; i < scores.length; i++) {
-			data[i] = Math.exp(budget * scores[i] / sensitivity);
+			data[i] = Math.exp(budget * scores[i] *0.5 / sensitivity);
 		}
 
 		return names[getRandomIdxByProbArr(data)];
@@ -80,7 +90,7 @@ public class ExponentialMechanism {
 
 		double[] weight = new double[scores.length];
 		for (int i = 0; i < n; i++) {
-			weight[i] = Math.exp(budget * scores[i] / sensitivity);
+			weight[i] = Math.exp(budget * scores[i] *0.5 / sensitivity);
 		}
 
 		HashMap<String, Double> hm_weight = new HashMap<String, Double>();
@@ -102,7 +112,7 @@ public class ExponentialMechanism {
 
 		double[] data = new double[score.length];
 		for (int i = 0; i < score.length; i++) {
-			data[i] = Math.exp(budget * score[i] / sensitivity);
+			data[i] = Math.exp(budget * score[i] *0.5  / sensitivity);
 		}
 
 		System.out.println("data.length=" + data.length);
