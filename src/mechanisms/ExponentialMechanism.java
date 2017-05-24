@@ -257,9 +257,9 @@ public class ExponentialMechanism {
 			}
 
 			// test
-			if (normalizedProb[i] == 0) {
-				System.out.println("??");
-			}
+//			if (normalizedProb[i] == 0) {
+//				System.out.println("??");
+//			}
 
 		}
 
